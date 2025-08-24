@@ -12,6 +12,7 @@ export default function NewsletterForm() {
   const [email, setEmail] = useState("")
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
   const [subscriberCount] = useState(2847)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -19,13 +20,41 @@ export default function NewsletterForm() {
     if (!email) return
 
     setIsLoading(true)
+    setError("")
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      const apiEndpoint = process.env.NEXT_PUBLIC_NEWSLETTER_API_ENDPOINT
+      
+      if (!apiEndpoint) {
+        throw new Error("Newsletter API endpoint not configured")
+      }
 
-    setIsSubmitted(true)
-    setIsLoading(false)
-    setEmail("")
+      const response = await fetch(apiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          timestamp: new Date().toISOString(),
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const result = await response.json()
+      console.log('Newsletter subscription successful:', result)
+      
+      setIsSubmitted(true)
+      setEmail("")
+    } catch (err) {
+      console.error('Newsletter subscription failed:', err)
+      setError(err instanceof Error ? err.message : 'Failed to subscribe. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -57,7 +86,10 @@ export default function NewsletterForm() {
                   <h3 className="text-lg font-medium text-card-foreground">Thank you for subscribing!</h3>
                   <p className="text-muted-foreground text-sm mt-1">We&apos;ll send you our best content weekly</p>
               </div>
-              <Button variant="outline" onClick={() => setIsSubmitted(false)} className="w-full">
+              <Button variant="outline" onClick={() => {
+                setIsSubmitted(false)
+                setError("")
+              }} className="w-full">
                 Subscribe Another Email
               </Button>
             </div>
@@ -72,6 +104,9 @@ export default function NewsletterForm() {
                   required
                   className="h-12 bg-input border-border focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
                 />
+                {error && (
+                  <p className="text-sm text-destructive">{error}</p>
+                )}
               </div>
 
               <Button
