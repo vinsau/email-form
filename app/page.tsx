@@ -54,8 +54,8 @@ export default function NewsletterForm() {
                 <CheckCircle className="w-6 h-6 text-secondary" />
               </div>
               <div>
-                <h3 className="text-lg font-medium text-card-foreground">Thank you for subscribing!</h3>
-                <p className="text-muted-foreground text-sm mt-1">We'll send you our best content weekly</p>
+                  <h3 className="text-lg font-medium text-card-foreground">Thank you for subscribing!</h3>
+                  <p className="text-muted-foreground text-sm mt-1">We&apos;ll send you our best content weekly</p>
               </div>
               <Button variant="outline" onClick={() => setIsSubmitted(false)} className="w-full">
                 Subscribe Another Email
